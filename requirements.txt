@@ -131,6 +131,7 @@ webcolors==24.11.1
 webencodings==0.5.1
 websocket-client==1.8.0
 websockets==14.2
+gunicorn
 Werkzeug==3.0.6
 widgetsnbextension==4.0.13
 xgboost==3.0.0
