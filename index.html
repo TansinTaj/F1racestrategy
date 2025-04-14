@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Race Strategy Prediction</title>
+    <style>
+        :root {
+            --dark-bg: #1a1a1a;
+            --panel-bg: #222222;
+            --text-color: #f5f5f5;
+            --accent-color: #e52e2e;
+            --border-radius: 4px;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .container {
+            display: flex;
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        .input-panel, .results-panel {
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            padding: 30px;
+            flex: 1;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            background-color: #333;
+            border: none;
+            border-radius: var(--border-radius);
+            color: var(--text-color);
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .column {
+            flex: 1;
+        }
+        
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 10px;
+            text-transform: uppercase;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #c42626;
+        }
+        
+        .results-heading {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        
+        .pit-stops-number {
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .strategy-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .strategy-table th {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #444;
+            color: var(--accent-color);
+        }
+        
+        .strategy-table td {
+            padding: 10px;
+            border-bottom: 1px solid #444;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #888;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .input-panel, .results-panel {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Race Strategy Prediction</h1>
+    
+    <div class="container">
+        <div class="input-panel">
+            <div>
+                <label for="track">Track</label>
+                <select id="track">
+                    <option value="Bahrain International Circuit">Bahrain International Circuit</option>
+                    <option value="Jeddah Corniche Circuit">Jeddah Corniche Circuit</option>
+                    <option value="Suzuka Circuit">Suzuka Circuit</option>
+                    <option value="Miami International Autodrome">Miami International Autodrome</option>
+                    <option value="Imola Circuit">Imola Circuit</option>
+                    <option value="Monaco Circuit">Monaco Circuit</option>
+                    <option value="Circuit de Barcelona-Catalunya">Circuit de Barcelona-Catalunya</option>
+                    <option value="Circuit Gilles Villeneuve">Circuit Gilles Villeneuve</option>
+                    <option value="Red Bull Ring">Red Bull Ring</option>
+                    <option value="Silverstone Circuit">Silverstone Circuit</option>
+                    <option value="Hungaroring">Hungaroring</option>
+                    <option value="Circuit de Spa-Francorchamps">Circuit de Spa-Francorchamps</option>
+                    <option value="Circuit Zandvoort">Circuit Zandvoort</option>
+                    <option value="Monza Circuit">Monza Circuit</option>
+                    <option value="Marina Bay Street Circuit">Marina Bay Street Circuit</option>
+                    <option value="Circuit of the Americas">Circuit of the Americas</option>
+                    <option value="Autódromo Hermanos Rodríguez">Autódromo Hermanos Rodríguez</option>
+                    <option value="Interlagos Circuit">Interlagos Circuit</option>
+                    <option value="Las Vegas Street Circuit">Las Vegas Street Circuit</option>
+                    <option value="Losail International Circuit">Losail International Circuit</option>
+                    <option value="Yas Marina Circuit">Yas Marina Circuit</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="year">Year</label>
+                <select id="year">
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                </select>
+            </div>
+           
+
+            <div>
+                <label for="team">Team</label>
+                <select id="team">
+                    <option value="Mercedes">Mercedes</option>
+                    <option value="Red Bull Racing">Red Bull Racing</option>
+                    <option value="Ferrari">Ferrari</option>
+                    <option value="McLaren">McLaren</option>
+                    <option value="Aston Martin">Aston Martin</option>
+                    <option value="Alpine">Alpine</option>
+                    <option value="Williams">Williams</option>
+                    <option value="AlphaTauri">AlphaTauri</option>
+                    <option value="Haas F1 Team">Haas F1 Team</option>
+                    <option value="Sauber">Sauber</option>
+                    <option value="Alfa Romeo Racing">Alfa Romeo Racing</option>
+                    <option value="Force India">Force India</option>
+                    <option value="Racing Point">Racing Point</option>
+                    <option value="Renault">Renault</option>
+                    <option value="Toro Rosso">Toro Rosso</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="driver">Driver</label>
+                <select id="driver">
+                </select>
+            </div>
+            
+            <div class="row">
+                <div class="column">
+                    <label for="airTemp">Air Temp (°C)</label>
+                    <input type="number" id="airTemp" min="0" max="50" value="25">
+                </div>
+                <div class="column">
+                    <label for="trackTemp">Track Temp (°C)</label>
+                    <input type="number" id="trackTemp" min="0" max="70" value="35">
+                </div>
+            </div>
+            
+            <div>
+                <label for="rainfall">Rainfall</label>
+                <select id="rainfall">
+                    <option value="0">No Rain</option>
+                    <option value="1">Light Rain</option>
+                    <option value="1">Moderate Rain</option>
+                    <option value="1">Heavy Rain</option>
+                </select>
+            </div>
+            
+            <div class="row">
+                <div class="column">
+                    <label for="currentLap">Current Lap</label>
+                    <input type="number" id="currentLap" min="1" max="100" value="1">
+                </div>
+                <div class="column">
+                    <label for="totalLaps">Total Race Laps</label>
+                    <input type="number" id="totalLaps" min="30" max="100" value="60">
+                </div>
+            </div>
+            
+            <button id="predictBtn">PREDICT</button>
+        </div>
+        
+        <div class="results-panel">
+            <h2 class="results-heading">Total Pit Stops</h2>
+            
+            <div id="loadingIndicator" class="loading hidden">Calculating optimal strategy...</div>
+            
+            <div id="resultsContent">
+                <div class="pit-stops-number" id="pitStopsNumber">-</div>
+                
+                <h2 class="results-heading">Pit Stop Lap</h2>
+                
+                <table class="strategy-table">
+                    <thead>
+                        <tr>
+                            <th>Pit Stop Lap</th>
+                            <th>Tyre Compound</th>
+                        </tr>
+                    </thead>
+                    <tbody id="strategyTableBody">
+                        <tr>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        const teamDrivers = {
+          "Mercedes": [
+            { value: "HAM", name: "Lewis Hamilton" },
+            { value: "RUS", name: "George Russell" }
+          ],
+          "Red Bull Racing": [
+            { value: "VER", name: "Max Verstappen" },
+            { value: "PER", name: "Sergio Perez" }
+          ],
+          "Ferrari": [
+            { value: "LEC", name: "Charles Leclerc" },
+            { value: "SAI", name: "Carlos Sainz" },
+            { value: "HAM", name: "Lewis Hamilton" }
+          ],
+          "McLaren": [
+            { value: "NOR", name: "Lando Norris" },
+            { value: "PIA", name: "Oscar Piastri" },
+            { value: "SAI", name: "Carlos Sainz" }
+          ],
+          "Aston Martin": [
+            { value: "ALO", name: "Fernando Alonso" },
+            { value: "STR", name: "Lance Stroll" }
+          ],
+          "Alpine": [
+            { value: "GAS", name: "Pierre Gasly" },
+            { value: "OCO", name: "Esteban Ocon" }
+          ],
+          "Williams": [
+            { value: "ALB", name: "Alex Albon" },
+            { value: "SAR", name: "Logan Sargeant" },
+            { value: "SAI", name: "Carlos Sainz" }
+          ],
+          "AlphaTauri": [
+            { value: "TSU", name: "Yuki Tsunoda" },
+            { value: "GAS", name: "Pierre Gasly" },
+            { value: "RIC", name: "Daniel Ricciardo" } 
+          ],
+          "Haas F1 Team": [
+            { value: "HUL", name: "Nico Hulkenberg" },
+            { value: "MAG", name: "Kevin Magnussen" }
+          ],
+          "Sauber": [
+            { value: "BOT", name: "Valtteri Bottas" },
+            { value: "ZHO", name: "Zhou Guanyu" }
+          ],
+          "Alfa Romeo Racing": [
+            { value: "BOT", name: "Valtteri Bottas" },
+            { value: "ZHO", name: "Zhou Guanyu" }
+          ],
+          "Force India": [
+            { value: "PER", name: "Sergio Perez" }, // Add specific driver if different
+            { value: "HUL", name: "Nico Hulkenberg" },
+            { value: "STO", name: "Lance Stroll" } // Add specific driver if different
+          ],
+          "Racing Point": [
+            { value: "PER", name: "Sergio Perez" },
+            { value: "STO", name: "Lance Stroll" }
+          ],
+          "Renault": [
+            { value: "RIC", name: "Daniel Ricciardo" },
+            { value: "MAG", name: "Kevin Magnussen" },
+            { value: "SAI", name: "Carlos Sainz" }
+          ],
+          "Toro Rosso": [
+            { value: "VER", name: "Max Verstappen" },
+            { value: "KVI", name: "Daniil Kvyat" },
+            { value: "SAI", name: "Carlos Sainz" }
+          ]
+        };
+      </script>
+      
+    <script>
+        // Sample pit stop strategies based on typical F1 patterns
+        const pitStopStrategies = {
+            // Format: [Track][Team] = [Number of stops, [Lap numbers], [Tire compounds]]
+            "Bahrain International Circuit": {
+                "Mercedes": [2, [18, 39], ["Soft", "Medium"]],
+                "Red Bull": [2, [16, 38], ["Medium", "Hard"]],
+                "Ferrari": [2, [17, 40], ["Soft", "Medium"]],
+                "McLaren": [2, [19, 41], ["Medium", "Hard"]],
+                "Aston Martin": [2, [15, 37], ["Soft", "Hard"]],
+                "default": [2, [18, 38], ["Medium", "Hard"]]
+            },
+            "Silverstone Circuit": {
+                "Mercedes": [1, [25], ["Hard"]],
+                "Red Bull": [2, [20, 40], ["Medium", "Hard"]],
+                "Ferrari": [2, [22, 42], ["Soft", "Hard"]],
+                "default": [2, [22, 44], ["Medium", "Hard"]]
+            },
+            "Monza Circuit": {
+                "Mercedes": [1, [28], ["Hard"]],
+                "Red Bull": [1, [26], ["Hard"]],
+                "Ferrari": [2, [21, 42], ["Soft", "Medium"]],
+                "default": [1, [25], ["Hard"]]
+            },
+            "default": {
+                "default": [2, [20, 40], ["Medium", "Hard"]]
+            }
+        };
+
+        // Weather modifiers - simple simulation of weather effects
+        const weatherModifiers = {
+            "0": {stops: 0, lapOffset: 0},      // No rain - no change
+            "1": {stops: 0, lapOffset: -2},     // Light rain - pit slightly earlier
+            "1": {stops: 2, lapOffset: -5},     // Moderate rain - extra stop + earlier
+            "1": {stops: 2, lapOffset: -8}      // Heavy rain - extra stop + much earlier
+        };
+
+        // Team performance factors (simplified)
+        const teamFactors = {
+            "Mercedes": {pitStopOffset: 0},
+            "Red Bull": {pitStopOffset: -1},    // More aggressive strategy
+            "Ferrari": {pitStopOffset: 2},      // More conservative
+            "McLaren": {pitStopOffset: 0},
+            "default": {pitStopOffset: 0}
+        };
+
+        // Temperature effects (simplified)
+        function getTemperatureEffect(airTemp, trackTemp) {
+            const avgTemp = (parseInt(airTemp) + parseInt(trackTemp)) / 2;
+            if (avgTemp > 45) return {stops: 1, lapOffset: -3};  // Hot - extra stop, earlier pit
+            if (avgTemp < 15) return {stops: 0, lapOffset: 5};   // Cold - later pit stops
+            return {stops: 0, lapOffset: 0};                    // Moderate - no change
+        }
+
+        // Predict strategy function (simulating ML model predictions)
+        function predictStrategy() {
+            const track = document.getElementById('track').value;
+            const team = document.getElementById('team').value;
+            const rainfall = document.getElementById('rainfall').value;
+            const airTemp = document.getElementById('airTemp').value;
+            const trackTemp = document.getElementById('trackTemp').value;
+            const currentLap = parseInt(document.getElementById('currentLap').value);
+            
+            // Show loading indicator
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+            document.getElementById('resultsContent').classList.add('hidden');
+            
+            // Simulate API call/processing delay
+            setTimeout(() => {
+                // Get base strategy for this track/team or default
+                let strategy;
+                if (pitStopStrategies[track] && pitStopStrategies[track][team]) {
+                    strategy = [...pitStopStrategies[track][team]];
+                } else if (pitStopStrategies[track]) {
+                    strategy = [...pitStopStrategies[track]['default']];
+                } else {
+                    strategy = [...pitStopStrategies['default']['default']];
+                }
+                
+                // Apply weather effects
+                const weatherMod = weatherModifiers[rainfall] || weatherModifiers["0"];
+                const tempEffect = getTemperatureEffect(airTemp, trackTemp);
+                const teamFactor = teamFactors[team] || teamFactors['default'];
+                
+                // Adjust number of pit stops
+                strategy[0] += weatherMod.stops + tempEffect.stops;
+                
+                // Adjust pit stop laps based on all factors
+                const lapOffset = weatherMod.lapOffset + tempEffect.lapOffset + teamFactor.pitStopOffset;
+                
+                // If we have more stops than tires, add some tires
+                while (strategy[2].length < strategy[0]) {
+                    if (rainfall > 0) {
+                        strategy[2].push("Intermediate");
+                    } else {
+                        strategy[2].push(["Soft", "Medium", "Hard"][Math.floor(Math.random() * 3)]);
+                    }
+                }
+                
+                // Adjust lap numbers based on current lap and modifiers
+                let adjustedLaps = [];
+                let baseDelta = (60 / (strategy[0] + 1)); // Evenly space pit stops
+                
+                for (let i = 0; i < strategy[0]; i++) {
+                    let lap = Math.round(currentLap + (i + 1) * baseDelta + lapOffset);
+                    adjustedLaps.push(Math.max(currentLap + 1, lap)); // Ensure laps are after current lap
+                }
+                
+                strategy[1] = adjustedLaps;
+                
+                // Make sure we have the right number of compounds
+                if (strategy[2].length > strategy[0]) {
+                    strategy[2] = strategy[2].slice(0, strategy[0]);
+                }
+                
+                // Update UI
+                displayResults(strategy);
+                
+                // Hide loading indicator
+                document.getElementById('loadingIndicator').classList.add('hidden');
+                document.getElementById('resultsContent').classList.remove('hidden');
+            }, 1500); // Simulate processing time
+        }
+        
+        // Display results in the UI
+        function displayResults(strategy) {
+            const [numStops, lapNumbers, compounds] = strategy;
+            
+            // Update pit stops number
+            document.getElementById('pitStopsNumber').textContent = numStops;
+            
+            // Update strategy table
+            const tableBody = document.getElementById('strategyTableBody');
+            tableBody.innerHTML = '';
+            
+            for (let i = 0; i < numStops; i++) {
+                const row = document.createElement('tr');
+                
+                const lapCell = document.createElement('td');
+                lapCell.textContent = lapNumbers[i];
+                row.appendChild(lapCell);
+                
+                const compoundCell = document.createElement('td');
+                compoundCell.textContent = compounds[i];
+                row.appendChild(compoundCell);
+                
+                tableBody.appendChild(row);
+            }
+            
+            // If no pit stops
+            if (numStops === 0) {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 2;
+                cell.textContent = "No pit stops required";
+                row.appendChild(cell);
+                tableBody.appendChild(row);
+            }
+        }
+        
+        // Add event listener to predict button
+        document.getElementById('predictBtn').addEventListener('click', predictStrategy);
+        
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const teamSelect = document.getElementById('team');
+          const driverSelect = document.getElementById('driver');
+      
+          teamSelect.addEventListener('change', function () {
+            const selectedTeam = teamSelect.value;
+            const drivers = teamDrivers[selectedTeam] || [];
+      
+            // Clear previous options
+            driverSelect.innerHTML = '';
+      
+            // Add default option
+            const defaultOption = document.createElement('option');
+            defaultOption.text = 'Select Driver';
+            defaultOption.disabled = true;
+            defaultOption.selected = true;
+            driverSelect.add(defaultOption);
+      
+            // Populate with new drivers
+            drivers.forEach(driver => {
+              const option = document.createElement('option');
+              option.value = driver.value;
+              option.text = driver.name;
+              driverSelect.add(option);
+            });
+          });
+        });
+      </script>
+      
+</body>
+</html>
